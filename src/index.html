@@ -8,28 +8,179 @@
   </head>
   <html class="h-full bg-gray-100">
     <body class="h-full">
-      <div class="min-h-full">
+      <div id="app" class="min-h-full"></div>
+
+      <script>
+        document.querySelector('#app').innerHTML = renderHTML();
+        const firstName = document.querySelector("#first-name");
+        const lastName = document.querySelector("#last-name");
+        const email = document.querySelector("#email");
+        const pwd = document.querySelector("#password");
+        const confirmPwd = document.querySelector("#confirm-password");
+        const createButton = document.querySelector("#create-account");
+
+        createButton.addEventListener("click", () => {
+          let usersInfoArray = [];
+          let userInfo;
+          let validatedFname = RequiredValidation(
+            firstName.value,
+            "#first-name-error",
+            firstName
+          );
+          let validatedLName = RequiredValidation(
+            lastName.value,
+            "#last-name-error",
+            lastName
+          );
+          let validatedEmail = RequiredValidation(
+            email.value,
+            "#email-error",
+            email,
+            true
+          );
+          let validatedPwd = RequiredValidation(
+            pwd.value,
+            "#password-error",
+            pwd,
+            false,
+            true
+          );
+          let validatedConfirmPwd = RequiredValidation(
+            confirmPwd.value,
+            "#confirm-password-error",
+            confirmPwd,
+            false,
+            true
+          );
+          let matchPwdVar = matchPwd(pwd.value, confirmPwd.value);
+
+          if (
+            !validatedFname ||
+            !validatedLName ||
+            !validatedEmail ||
+            !validatedPwd
+          ) {
+            return;
+          }
+          if (validatedPwd === validatedConfirmPwd) {
+            userInfo = {
+              ["first-name"]: validatedFname,
+              ["last-name"]: validatedLName,
+              email: validatedEmail,
+              password: validatedPwd,
+            };
+            usersInfoArray.push(userInfo);
+            console.log(usersInfoArray);
+            successReset();
+            alert("Your information has been saved successfully!");
+          } else {
+            error(
+              "#password-error",
+              "Your password doesn't match. Please Try Again",
+              pwd
+            );
+            error("#confirm-password-error", "", confirmPwd);
+          }
+        });
+
+        function RequiredValidation(
+          value,
+          id,
+          name,
+          email = null,
+          password = null
+        ) {
+          const trimValue = value.trim();
+          if (trimValue === "") {
+            error(id, "This input field is required", name);
+            return false;
+          }
+          if (trimValue.length > 2) {
+            approve(id, name);
+          }
+          if (trimValue.length < 2) {
+            error(id, "Too Short, Minimum of 2 characters", name);
+            return false;
+          }
+          if (email) {
+            isValidEmail(value, id, name);
+          }
+          if (password) {
+            if (trimValue.length >= 8) {
+              approve(id, name);
+            } else {
+              error(id, "Your Password is too short, please try again", name);
+              return false;
+            }
+          }
+          return value;
+        }
+
+        function isValidEmail(email, id, name) {
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailPattern.test(email)) {
+            approve(id, name);
+          } else {
+            error(id, "You have entered an invalid email syntax.", name);
+          }
+        }
+
+        function matchPwd(pwd, confirmPwd) {
+          if (pwd === confirmPwd) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+
+        function approve(id, name) {
+          document.querySelector(`${id}`).innerHTML = "";
+          name.classList.remove("ring-red-500");
+          name.classList.add("ring-green-500");
+        }
+
+        function error(id, message, name) {
+          document.querySelector(`${id}`).innerHTML = message;
+          name.classList.add("ring-red-500");
+        }
+
+        function successReset() {
+          firstName.value = "";
+          lastName.value = "";
+          email.value = "";
+          pwd.value = "";
+          confirmPwd.value = "";
+
+          firstName.classList.remove("ring-green-500");
+          lastName.classList.remove("ring-green-500");
+          email.classList.remove("ring-green-500");
+          pwd.classList.remove("ring-green-500");
+          confirmPwd.classList.remove("ring-green-500");
+        }
+
+        function renderHTML() {
+          return `
         <nav class="bg-gray-800">
           <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
+              <div class="flex items-center w-full justify-between">
+                <div class="flex-shrink-0 flex items-end gap-3">
                   <img
                     class="h-8 w-8"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                    src="images/JavaScript-logo.png"
                     alt="Your Company"
                   />
+                  <h1 class="-mb-1 text-white text-xl">
+                    IT313 Activity Javascript
+                  </h1>
                 </div>
-                <div class="hidden md:block">
-                  <div class="ml-10 flex items-baseline space-x-4">
-                    <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                    <a
-                      href="#"
-                      class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                      aria-current="page"
-                      >Samm Reyven Joey P. Caagbay</a
-                    >
-                  </div>
+                <div class="flex items-baseline space-x-4">
+                  <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                  <a
+                    class="px-3 py-2 text-sm font-medium text-white hover:rounded-md hover:bg-gray-900"
+                    aria-current="page"
+                    >Samm Reyven Joey P. Caagbay</a
+                  >
                 </div>
               </div>
             </div>
@@ -39,7 +190,7 @@
         <header class="bg-white shadow">
           <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-              IT313 Activity Javascript
+              Registration Form
             </h1>
           </div>
         </header>
@@ -51,14 +202,17 @@
               <div class="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img
                   class="mx-auto h-10 w-auto"
-                  src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                  src="images/JavaScript-logo.png"
                   alt="Your Company"
                 />
                 <h2
                   class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
                 >
-                  Sign in to your account
+                  Create your account
                 </h2>
+                <p class="text-center text-gray-500">
+                  Fill up your personal information here.
+                </p>
               </div>
 
               <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-6">
@@ -75,13 +229,13 @@
                       type="first-name"
                       autocomplete="first-name"
                       required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="ex. John"
+                      class="block pl-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <p class="italic text-red-500" id="first-name-error">
-                      Please Use Correct Syntax!
-                    </p>
+                    <p class="italic text-red-500" id="first-name-error"></p>
                   </div>
                 </div>
+
                 <div>
                   <label
                     for="last-name"
@@ -95,13 +249,13 @@
                       type="last-name"
                       autocomplete="last-name"
                       required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="ex. Doe"
+                      class="block pl-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <p class="italic text-red-500" id="last-name-error">
-                      Please Use Correct Syntax!
-                    </p>
+                    <p class="italic text-red-500" id="last-name-error"></p>
                   </div>
                 </div>
+
                 <div>
                   <label
                     for="email"
@@ -115,11 +269,10 @@
                       type="email"
                       autocomplete="email"
                       required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="example@email.com"
+                      class="block pl-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <p class="italic text-red-500" id="email-error">
-                      Please Use Correct Syntax!
-                    </p>
+                    <p class="italic text-red-500" id="email-error"></p>
                   </div>
                 </div>
 
@@ -137,12 +290,11 @@
                       name="password"
                       type="password"
                       autocomplete="current-password"
+                      placeholder="8 characters or more"
                       required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      class="block pl-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <p class="italic text-red-500" id="password-error">
-                      Please Use Correct Syntax!
-                    </p>
+                    <p class="italic text-red-500" id="password-error"></p>
                   </div>
                 </div>
 
@@ -161,11 +313,13 @@
                       type="password"
                       autocomplete="confirm-password"
                       required
-                      class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="Ensure it matches with the password you gave"
+                      class="block pl-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <p class="italic text-red-500" id="confirm-password-error">
-                      Please Use Correct Syntax!
-                    </p>
+                    <p
+                      class="italic text-red-500"
+                      id="confirm-password-error"
+                    ></p>
                   </div>
                 </div>
 
@@ -180,19 +334,8 @@
               </div>
             </div>
           </div>
-        </main>
-      </div>
-      <script>
-        const firstName = document.querySelector("#first-name");
-        const lastName = document.querySelector("#last-name");
-        const email = document.querySelector("#email");
-        const pwd = document.querySelector("#password");
-        const confirmPwd = document.querySelector("#confirm-password");
-        const createButton = document.querySelector("#create-account");
-
-        createButton.addEventListener("click", () => {
-          
-        });
+        </main>`;
+        }
       </script>
     </body>
   </html>
